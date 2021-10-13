@@ -2,6 +2,8 @@
   import { prerendering } from "$app/env";
   import { get } from "$lib/api";
   import "../main.css";
+  import "./vars.css";
+  import "./layout.css";
 
   export async function load({ fetch, url, session }) {
     if (prerendering)

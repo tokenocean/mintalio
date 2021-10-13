@@ -4,31 +4,17 @@
   export let checked = false;
 </script>
 
-<div
-  class="relative inline-block w-10 mr-2 align-middle select-none ease-in my-auto"
->
+
+<div class="relative inline-block w-10 mr-2 align-middle select-none ease-in">
   <input
     type="checkbox"
     name="toggle"
     {id}
     class="toggle-checkbox absolute p-0 block w-6 h-6 rounded-full bg-white border-4 appearance-none cursor-pointer outline-none"
     bind:checked
-    on:change
-  />
+    on:change />
   <label
     for={id}
-    class="toggle-label block overflow-hidden h-6 rounded-full bg-gray-300 cursor-pointer"
-  />
+    class="toggle-label block overflow-hidden h-6 rounded-full bg-gray-300 cursor-pointer" />
 </div>
 <label for={id} class="cursor-pointer">{label}</label>
-
-<style>
-  .toggle-checkbox:checked {
-    @apply right-0;
-    border: 1px solid #6ed8e0;
-    right: 0;
-  }
-  .toggle-checkbox:checked + .toggle-label {
-    background: #6ed8e0;
-  }
-</style>

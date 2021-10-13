@@ -151,6 +151,10 @@
     @apply border-t-2 border-b-2 border-r-2 text-white;
   }
 
+  button {
+    @apply text-white;
+  }
+
   button:disabled {
     @apply text-gray-400 border-gray-400;
   }

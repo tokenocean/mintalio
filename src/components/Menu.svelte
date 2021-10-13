@@ -18,7 +18,6 @@
   <a href={branding.urls.external.blog}
     ><button on:click={toggle}>Blog</button></a
   >
-  <a href="/help"><button on:click={toggle}>Help</button></a>
   {#if $session?.user}
     {#if $session.user.is_admin}
       <a href="/admin"><button on:click={toggle}>Admin</button></a>
@@ -32,6 +31,10 @@
 </div>
 
 <style>
+  .menu a {
+    @apply text-secondary;
+  }
+
   .menu button {
     width: auto;
     text-align: left;

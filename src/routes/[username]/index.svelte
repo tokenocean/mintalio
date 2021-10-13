@@ -281,6 +281,5 @@
 
   .social-details span {
     margin-left: 8px;
-    color: #0f828a;
   }
 </style>

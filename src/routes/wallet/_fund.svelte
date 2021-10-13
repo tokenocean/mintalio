@@ -141,7 +141,7 @@
         Funding through a confidential liquid address, bitcoin address, or
         lightning invoice is achieved by automatically converting to L-BTC
         through
-        <a href="https://coinos.io" style="color: #6ed8e0">coinos.io</a>. Funds
+        <a href="https://coinos.io" class="text-midblue">coinos.io</a>. Funds
         will be subject to counterparty risk during the conversion process.
       </p>
 
@@ -156,8 +156,7 @@
         See
         <a
           href="https://help.blockstream.com/hc/en-us/articles/900000630846-How-do-I-get-Liquid-Bitcoin-L-BTC-"
-          style="color: #6ed8e0">this article</a
-        >
+          class="text-midblue">this article</a>
         for other methods of acquiring L-BTC.
       </p>
     {/if}
@@ -219,7 +218,7 @@
         <div class="flex justify-center">
           {#if tab === "liquid"}
             <button
-              class="justify-center flex center font-medium secondary-color uppercase mt-4 mr-4"
+              class="justify-center flex center font-medium text-secondary uppercase mt-4 mr-4"
               on:click={toggleConfidential}
             >
               <div class="my-auto mr-1">
@@ -230,7 +229,7 @@
           {/if}
           <button
             on:click={() => copy(address)}
-            class="justify-center flex center font-medium secondary-color uppercase mt-4"
+            class="justify-center flex center font-medium text-secondary uppercase mt-4"
           >
             <div>Copy {tab === "lightning" ? "invoice" : "address"}</div>
             <div class="my-auto ml-2">

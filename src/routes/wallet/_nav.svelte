@@ -13,7 +13,7 @@
 
 {#if $session.user}
   <div class="wallet-nav-container">
-    <h2 class="mb-5 px-5 md:px-0"><a href="/wallet">Wallet</a></h2>
+    <h2 class="mb-5 px-5 md:px-0"><a href="/wallet" class="text-secondary">Wallet</a></h2>
 
     <div class="wallet-nav flex flex-col uppercase">
       {#if $session.user.wallet_initialized}
@@ -70,6 +70,7 @@
   }
 
   .wallet-nav a {
+    @apply text-secondary;
     margin-bottom: 20px;
   }
 

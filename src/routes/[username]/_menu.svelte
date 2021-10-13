@@ -50,6 +50,7 @@
 
   .menu a {
     margin: 10px 0;
+    @apply text-secondary;
   }
   .menu span {
     margin-left: 8px;
