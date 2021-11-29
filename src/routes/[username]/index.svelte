@@ -2,8 +2,11 @@
   export async function load({ fetch, page }) {
     try {
       const { subject } = await fetch(
-        `/${page.params.username}.json`
-      ).then((r) => r.json());
+        `/user/${page.params.username}.json`
+      ).then((r) => {
+        if (r.ok) return r.json();
+        throw new Error("not ok");
+      });
 
       return {
         maxage: 90,
