@@ -5,7 +5,6 @@
 
   export let artworks;
   export let count;
-
   let inview = artworks.slice(0, 24);
   let debug;
 
@@ -109,14 +108,47 @@
 
 <div bind:this={content} id="content">
   <div class="sm:grid sm:grid-cols-2 sm:gap-10 lg:grid-cols-3">
-    {#each inview as artwork, i}
-      <div
-        class="market-gallery w-full mb-20"
-        style={`transform: translateY(${translate}px)`}
-      >
-        <Card {artwork} bind:justScrolled height={350} />
-      </div>
-    {/each}
+    <div>
+      {#each inview.filter((x, i) => {
+        if(i < 4){
+          return x;
+        }
+      }) as artwork, i}
+        <div
+          class="market-gallery w-full mb-20"
+          style={`transform: translateY(${translate}px)`}
+        >
+          <Card {artwork} bind:justScrolled />
+        </div>
+      {/each}
+    </div>
+    <div>
+      {#each inview.filter((x, i) => {
+        if(i >= 4 && i < 8){
+          return x;
+        }
+      }) as artwork, i}
+        <div
+          class="market-gallery w-full mb-20"
+          style={`transform: translateY(${translate}px)`}
+        >
+          <Card {artwork} bind:justScrolled />
+        </div>
+      {/each}
+    </div>
+    <div>
+      {#each inview.filter((x, i) => {
+        if(i >= 8){
+          return x;
+        }
+      }) as artwork, i}
+        <div
+          class="market-gallery w-full mb-20"
+          style={`transform: translateY(${translate}px)`}
+        >
+          <Card {artwork} bind:justScrolled />
+        </div>
+      {/each}
+    </div>
   </div>
 </div>
-
