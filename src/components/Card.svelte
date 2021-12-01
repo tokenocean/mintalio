@@ -11,7 +11,7 @@
   export let showDetails = true;
   export let thumb = true;
   export let popup = false;
-  export let height;
+  export let height = undefined;
 
   $: style = height ? `height: ${height}px` : undefined;
 
@@ -36,7 +36,7 @@
 <div
   class="{showDetails ? 'card' : ''} flex {!showDetails || $loaded[artwork.id]
     ? 'bg-white'
-    : 'bg-gray-100'} flex-col justify-between h-full"
+    : 'bg-gray-100'} flex-col justify-between"
   in:fade
 >
   <div {style}>
