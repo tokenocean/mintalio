@@ -6,7 +6,6 @@
       console.log(e);
     }
 
-    console.log(session);
 
     return {};
   }
