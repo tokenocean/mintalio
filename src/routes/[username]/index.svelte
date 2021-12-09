@@ -2,7 +2,7 @@
   export async function load({ fetch, page }) {
     try {
       const { subject } = await fetch(
-        `/user/${page.params.username}.json`
+        `/${page.params.username}.json`
       ).then((r) => r.json());
 
       return {
@@ -13,10 +13,6 @@
       };
     } catch (e) {
       console.log(e);
-      return {
-        status: 302,
-        redirect: "/",
-      };
     }
   }
 </script>
