@@ -9,7 +9,7 @@ COPY package.json .
 RUN pnpm i
 
 COPY . .
-RUN rm -rf .svelte-kit
+RUN pnpm i
 RUN pnpm build
 
 RUN cat build/middlewares.js >> shim.js
