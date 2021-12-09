@@ -38,7 +38,8 @@
 
   export let addresses, titles;
 
-  if (browser) history.pushState = new Proxy(history.pushState, {
+  if (browser) {
+    history.pushState = new Proxy(history.pushState, {
     apply(target, thisArg, argumentsList) {
       Reflect.apply(target, thisArg, argumentsList);
       scrollTo(0, 0);
@@ -53,6 +54,7 @@
 
   $user = $session.user;
   $token = $session.jwt;
+}
 
   let open = false;
   let y;

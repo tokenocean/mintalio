@@ -16,10 +16,6 @@
       };
     } catch (e) {
       console.log(e);
-      return {
-        status: 302,
-        redirect: "/",
-      };
     }
   }
 </script>
