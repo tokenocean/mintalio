@@ -8,9 +8,8 @@
   } from "@fortawesome/free-solid-svg-icons";
   export let artwork;
   let show;
-</script>
 
-    {#if artwork.royalty_recipients.length}
+</script>
 
 <div class="mb-6">
   <div class="text-xs cursor-pointer mb-2" on:click={() => (show = !show)}>
@@ -26,6 +25,7 @@
   </div>
   {#if show}
     <ul>
+      {#if artwork.royalty_recipients.length}
         {#each artwork.royalty_recipients as recipient}
           <RoyaltyRecipient
             editable={false}
@@ -33,7 +33,7 @@
             {recipient}
           />
         {/each}
+      {/if}
     </ul>
   {/if}
 </div>
-      {/if}
