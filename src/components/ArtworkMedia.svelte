@@ -126,7 +126,7 @@
     {/if}
   </div>
 {:else}
-  <div class="w-full" class:cover class:contain>
+  <div class="w-full">
     <img
       src={preview || path ? path : "/liquid_logo.svg"}
       alt={artwork.title}
