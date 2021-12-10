@@ -8,12 +8,11 @@ import { err } from "$lib/utils";
 // const { retry } = middlewares.default || middlewares;
 // wretch().polyfills({ fetch });
 
-export const api = wretch().url("/api");
-export const electrs = wretch().url("/api/el");
+const w = wretch();
+export const api = w.url("/api");
+export const electrs = w.url("/api/el");
 
-export const hasura = wretch()
-  //  .middlewares([retry({ maxAttempts: 2 })])
-  .url("/api/v1/graphql");
+export const hasura = w.url("/api/v1/graphql");
 
 export const pub = (t) => (t ? hasura.auth(`Bearer ${t}`) : hasura);
 export const query = async (query, variables) => {
@@ -22,16 +21,13 @@ export const query = async (query, variables) => {
   return data;
 };
 
-export const hbp = wretch().url(import.meta.env.VITE_HBP);
-export const serverApi = wretch().url(import.meta.env.VITE_APP);
+export const hbp = w.url(import.meta.env.VITE_HBP);
+export const serverApi = w.url(import.meta.env.VITE_APP);
 
-export const get = (url, f = fetch) =>
-  wretch()
-    .polyfills({ fetch: f })
-    .url(url)
-    .get();
+export const get = (url, f) => wretch().polyfills({ fetch: f }).url(url).get();
 
-export const post = (url, body, f = fetch) =>
+
+export const post = (url, body, f) =>
   wretch()
     .polyfills({ fetch: f })
     .url("/" + url)
