@@ -53,7 +53,7 @@
         <a class="primary-btn" href={`/market`}>Discover</a>
       </div>
       <div>
-        <a class="secondary-btn" href={`/artwork/create`}>Create</a>
+        <a class="secondary-btn" href={`/a/create`}>Create</a>
       </div>
     </div>
   </div>

@@ -72,45 +72,45 @@ export const getTransactions = () => {
 };
 
 export const getBalances = async () => {
-  await getLocked();
-  await requirePassword();
-  let f = (a) => electrs.url(`/address/${a}/utxo`).get().json();
-  let single = (await f(get(user).address)).map((u) => ({
-    ...u,
-    single: true,
-  }));
-  let multi = (await f(get(user).multisig)).map((u) => ({ ...u, multi: true }));
-  let utxos = [...single, ...multi];
+  try {
+    await getLocked();
+    await requirePassword();
+    let f = (a) => electrs.url(`/address/${a}/utxo`).get().json();
+    console.log("BOOM", get(user).address);
+    let single = (await f(get(user).address)).map((u) => ({
+      ...u,
+      single: true,
+    }));
+    let multi = (await f(get(user).multisig)).map((u) => ({
+      ...u,
+      multi: true,
+    }));
+    let utxos = [...single, ...multi];
 
-  let b = {};
-  let p = {};
+    let b = {};
+    let p = {};
 
-  utxos.map((u) => {
-    if (u.status.confirmed) {
-      if (b[u.asset]) b[u.asset] += parseInt(u.value);
-      else b[u.asset] = u.value;
-    } else {
-      if (p[u.asset]) p[u.asset] += parseInt(u.value);
-      else p[u.asset] = u.value;
-    }
-  });
+    utxos.map((u) => {
+      if (u.status.confirmed) {
+        if (b[u.asset]) b[u.asset] += parseInt(u.value);
+        else b[u.asset] = u.value;
+      } else {
+        if (p[u.asset]) p[u.asset] += parseInt(u.value);
+        else p[u.asset] = u.value;
+      }
+    });
 
-  Object.keys(b).map(async (a) => {
-    let artwork = get(titles).find(
-      (t) => t.asset === a && t.owner_id !== get(user).id
-    );
+    Object.keys(b).map(async (a) => {
+      let artwork = get(titles).find(
+        (t) => t.asset === a && t.owner_id !== get(user).id
+      );
+    });
 
-    if (artwork) {
-      await api
-        .auth(`Bearer ${get(token)}`)
-        .url("/claim")
-        .post({ artwork })
-        .json();
-    }
-  });
-
-  balances.set(JSON.parse(JSON.stringify(b)));
-  pending.set(p);
+    balances.set(JSON.parse(JSON.stringify(b)));
+    pending.set(p);
+  } catch (e) {
+    console.log(e);
+  }
 };
 
 const getHex = async (txid) => {
@@ -635,7 +635,9 @@ export const sign = (sighash) => {
   p.data.inputs.map(({ sighashType }, i) => {
     try {
       p = p
-        .signInput(i, ECPair.fromPrivateKey(privkey), [sighash || sighashType || 1])
+        .signInput(i, ECPair.fromPrivateKey(privkey), [
+          sighash || sighashType || 1,
+        ])
         .finalizeInput(i);
     } catch (e) {
       // console.log("failed to sign", e.message, i);
@@ -731,7 +733,7 @@ export const executeSwap = async (artwork) => {
 };
 
 export const createIssuance = async (
-  { filename: file, title: name, ticker, unlockable_content: locked_content },
+  { filename: file, title: name, ticker },
   domain,
   tx
 ) => {
@@ -774,7 +776,6 @@ export const createIssuance = async (
       else bumpFee(value);
     }
   } else {
-    console.log("out", out);
     await fund(p, out, btc, get(fee), 1, false, false);
   }
 
@@ -787,8 +788,6 @@ export const createIssuance = async (
     ticker,
     version: 0,
   };
-
-  if (locked_content) contract["locked_content"] = locked_content;
 
   p.addIssuance({
     assetAmount: 1,
@@ -810,16 +809,10 @@ export const signOver = async ({ asset }, tx) => {
   let p = new Psbt();
 
   if (!tx) {
-    let utxos = [
-      ...(await electrs
-        .url(`/address/${get(user).address}/utxo`)
-        .get()
-        .json()),
-      ...(await electrs
-        .url(`/address/${get(user).multisig}/utxo`)
-        .get()
-        .json()),
-    ];
+    let utxos = await electrs
+      .url(`/address/${multisig().address}/utxo`)
+      .get()
+      .json();
     let prevout = utxos.find((o) => o.asset === asset);
     let hex = await getHex(prevout.txid);
     tx = Transaction.fromHex(hex);
@@ -1070,11 +1063,11 @@ export const sendToMultisig = async (artwork) => {
   return p;
 };
 
-export const requestSignature = async (psbt, metaData = {}) => {
+export const requestSignature = async (psbt) => {
   let { base64 } = await api
     .url("/sign")
     .headers({ authorization: `Bearer ${get(token)}` })
-    .post({ psbt: psbt.toBase64(), metaData })
+    .post({ psbt: psbt.toBase64() })
     .json();
   return Psbt.fromBase64(base64);
 };

@@ -16,7 +16,7 @@
 
     <div class="wallet-nav flex flex-col uppercase">
       {#if $user.wallet_initialized}
-        <a href={`/${$user.username}`}>
+        <a href={`/u/${$user.username}`}>
           <div
             class="flex flex-wrap justify-center sm:justify-start items-center sm:items-start h-full"
           >
@@ -67,13 +67,13 @@
   .wallet-nav {
     font-size: 15px;
   }
-  
-  a {
-    color: inherit;
-  } 
 
   .wallet-nav a {
     margin-bottom: 20px;
+  }
+
+  .wallet-nav a:hover {
+    color: #3ba5ac;
   }
 
   @media (max-width: 1023px) {
