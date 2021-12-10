@@ -46,8 +46,8 @@
     },
   });
 
-  $: resetMeta($page);
   let resetMeta = () => ($meta = { ...branding.meta });
+  $: resetMeta($page);
 
   $a = addresses;
   $t = titles;
