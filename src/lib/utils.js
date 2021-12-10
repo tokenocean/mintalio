@@ -2310,17 +2310,6 @@ const linkify = (text) => {
   });
 };
 
-function post(endpoint, data) {
-	return fetch(endpoint, {
-		method: 'POST',
-		credentials: 'include',
-		body: JSON.stringify(data || {}),
-		headers: {
-			'Content-Type': 'application/json'
-		}
-	});
-}
-
 export {
   addressLabel,
   addressUser,
@@ -2340,7 +2329,6 @@ export {
   info,
   linkify,
   pick,
-  post,
   sats,
   kebab,
   ticker,

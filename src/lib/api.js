@@ -6,9 +6,7 @@ import { get as g } from "svelte/store";
 import { err } from "$lib/utils";
 
 // const { retry } = middlewares.default || middlewares;
-// wretch().polyfills({ fetch });
-
-const w = wretch();
+const w = wretch().polyfills({ fetch });
 export const api = w.url("/api");
 export const electrs = w.url("/api/el");
 
@@ -25,7 +23,6 @@ export const hbp = w.url(import.meta.env.VITE_HBP);
 export const serverApi = w.url(import.meta.env.VITE_APP);
 
 export const get = (url, f) => wretch().polyfills({ fetch: f }).url(url).get();
-
 
 export const post = (url, body, f) =>
   wretch()
