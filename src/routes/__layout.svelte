@@ -40,21 +40,18 @@
 
   if (browser) {
     history.pushState = new Proxy(history.pushState, {
-    apply(target, thisArg, argumentsList) {
-      Reflect.apply(target, thisArg, argumentsList);
-      scrollTo(0, 0);
-    },
-  });
+      apply(target, thisArg, argumentsList) {
+        Reflect.apply(target, thisArg, argumentsList);
+        scrollTo(0, 0);
+      },
+    });
 
-  let resetMeta = () => ($meta = { ...branding.meta });
-  $: resetMeta($page);
+    $a = addresses;
+    $t = titles;
 
-  $a = addresses;
-  $t = titles;
-
-  $user = $session.user;
-  $token = $session.jwt;
-}
+    $user = $session.user;
+    $token = $session.jwt;
+  }
 
   let open = false;
   let y;
@@ -66,8 +63,8 @@
 
 <svelte:window bind:scrollY={y} />
 
-{#if !($page.path.includes('/a/') && $page.path.split('/').length === 3)}
-<Head metadata={branding.meta} />
+{#if !($page.path.includes("/a/") && $page.path.split("/").length === 3)}
+  <Head metadata={branding.meta} />
 {/if}
 <Snack />
 

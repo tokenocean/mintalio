@@ -4,7 +4,6 @@
   import { onMount, tick } from "svelte";
 
   export let filtered;
-  export let count;
 </script>
 
 <div>

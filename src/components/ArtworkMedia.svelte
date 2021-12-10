@@ -142,13 +142,6 @@
     position: relative;
   }
 
-  .contain img,
-  .contain video {
-    height: 350px;
-    width: 100%;
-    object-fit: cover;
-  }
-
   img,
   video {
     max-height: 70vh;
