@@ -1,4 +1,4 @@
-FROM node:alpine
+FROM node:17-alpine3.13
 
 ARG NODE_ENV=production
 ENV NODE_ENV $NODE_ENV
@@ -8,9 +8,8 @@ RUN apk add git ffmpeg python3 build-base vips-dev
 RUN npm i -g pnpm
 
 WORKDIR /app
-
 COPY package.json .
-RUN pnpm i
+RUN pnpm install
 
 COPY . .
 
