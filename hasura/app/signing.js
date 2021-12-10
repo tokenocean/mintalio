@@ -51,9 +51,9 @@ app.get("/pubkey", async (req, res) => {
 
 app.post("/sign", auth, async (req, res) => {
   try {
-    const { psbt, metaData } = req.body;
+    const { psbt } = req.body;
 
-    await check(psbt, metaData.forTransfer);
+    await check(psbt);
 
     res.send({ base64: sign(psbt).toBase64() });
   } catch (e) {
@@ -62,7 +62,7 @@ app.post("/sign", auth, async (req, res) => {
   }
 });
 
-const check = async (psbt, skipRoyalty = false) => {
+const check = async (psbt) => {
   const [txid, outputs] = parse(psbt);
 
   const multisig = (
@@ -97,7 +97,7 @@ const check = async (psbt, skipRoyalty = false) => {
               unconfidential = Address.fromConfidential(recipient.address)
                 .unconfidentialAddress;
             } catch (e) {}
-            
+
             return (
               recipient.address === o.address || unconfidential === o.address
             );
@@ -123,7 +123,7 @@ const check = async (psbt, skipRoyalty = false) => {
           throw new Error("Auction underway");
       }
 
-      if (has_royalty && !skipRoyalty) {
+      if (has_royalty) {
         if (toOwner) {
           let amountDue = 0;
 
