@@ -17,6 +17,7 @@ const {
 } = require("./queries");
 
 const crypto = require("crypto");
+const { SERVER_URL } = process.env;
 
 app.post("/cancel", auth, async (req, res) => {
   try {
@@ -48,7 +49,7 @@ app.post("/transfer", auth, async (req, res) => {
     let attempts = 0;
     let received = () => utxos.find((tx) => tx.asset === transaction.asset)
 
-    console.log("transferring", transaction);
+    console.log("transferring", transaction.artwork_id);
 
     while (!received() && attempts < 5) {
       await new Promise((r) => setTimeout(r, 2000));
