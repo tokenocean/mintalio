@@ -3,7 +3,6 @@
     const props = await fetch(`/artworks/recent.json`).then((r) => r.json());
 
     return {
-      maxage: 90,
       props,
     };
   }
@@ -11,7 +10,7 @@
 
 <script>
   import Index from "./index.svelte";
-  
+
   export let featured;
   export let recent;
   export let latest;
