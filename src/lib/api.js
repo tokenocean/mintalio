@@ -6,7 +6,8 @@ import { get as g } from "svelte/store";
 import { err } from "$lib/utils";
 
 // const { retry } = middlewares.default || middlewares;
-const w = wretch().polyfills({ fetch });
+
+const w = wretch();
 export const api = w.url("/api");
 export const electrs = w.url("/api/el");
 

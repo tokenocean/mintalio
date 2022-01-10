@@ -1,6 +1,6 @@
 <script context="module">
   export async function load({ fetch }) {
-    const r = await fetch("/artworks.json?limit=12").then((r) => r.json());
+    const r = await fetch("/artworks.json?limit=24").then((r) => r.json());
 
     return {
       maxage: 720,
@@ -10,6 +10,8 @@
       },
     };
   }
+
+  
 
 </script>
 
@@ -54,6 +56,13 @@
     $artworks = r.artworks;
   });
 
+  const loadMoreArtworks = (e) => {
+    e.preventDefault();
+    offset++;
+    filtered = [...filtered, ...$artworks.filter((x,i)=>{if(i>(offset*24) && i<=((offset+1)*24)){
+      return x;
+    }})]
+  }
 </script>
 
 <style>
@@ -110,4 +119,7 @@
     <Filter bind:filtered {showFilters} />
   </div>
   <Gallery bind:filtered bind:count />
+  <div class="container more flex justify-center">
+    <a class="secondary-btn w-48" href={"#"} on:click={loadMoreArtworks}>View more</a>
+  </div>
 </div>
