@@ -1,17 +1,15 @@
 <script context="module">
+  import { post } from "$lib/api";
   export async function load({ fetch }) {
-    const r = await fetch("/artworks.json?limit=24").then((r) => r.json());
+    const r = await post("/artworks.json", { limit: 24 }, fetch).json();
 
     return {
-      maxage: 720,
       props: {
         count: r.count,
         initialArtworks: r.artworks,
       },
     };
   }
-
-  
 
 </script>
 
@@ -51,10 +49,10 @@
     }
   };
 
-  onMount(async () => {
-    const r = await fetch("/artworks.json").then((r) => r.json());
-    $artworks = r.artworks;
-  });
+  /* onMount(async () => { */
+  /*   const r = await fetch("/artworks.json", { headers: { "content-type": "application/json" }}).then((r) => r.json()); */
+  /*   $artworks = r.artworks; */
+  /* }); */
 
   const loadMoreArtworks = (e) => {
     e.preventDefault();

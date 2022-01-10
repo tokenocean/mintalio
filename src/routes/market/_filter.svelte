@@ -4,7 +4,7 @@
   import { artworks, filterCriteria as fc } from "$lib/store";
 
   export let showFilters;
-  export let filtered;
+  export let filtered = [];
 
   $: update($fc.listPrice, $fc.openBid, $fc.ownedByCreator, $fc.hasSold, $artworks);
   let update = () => (filtered = filtered.filter(filter));
