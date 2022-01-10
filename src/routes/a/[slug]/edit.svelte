@@ -10,7 +10,6 @@
     } 
 
     return {
-      maxage: 90,
       props,
     };
   }
@@ -39,7 +38,7 @@
 
     query(updateTags, {
       tags: tags.map(({ tag }) => ({ tag, artwork_id: id })),
-      id,
+      artwork_id: id,
     })
       .then(() => {
         query(updateArtwork, {
