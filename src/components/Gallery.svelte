@@ -3,7 +3,7 @@
   import { Card, Pagination } from "$comp";
   import { onMount, tick } from "svelte";
 
-  export let filtered;
+  export let filtered = [];
 
   let chunks;
   let leftRow;
