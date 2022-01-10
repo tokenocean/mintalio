@@ -50,6 +50,9 @@ const cf = wretch()
 
 const hbp = wretch().url(HBP_URL);
 
+const { APP_URL } = process.env;
+const lnft = wretch().url(APP_URL);
+
 module.exports = {
   hasura: adminApi,
   api,
@@ -59,6 +62,7 @@ module.exports = {
   hbp,
   coinos,
   ipfs,
+  lnft,
   q,
   w,
 };
