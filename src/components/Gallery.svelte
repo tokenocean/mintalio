@@ -9,7 +9,7 @@
   export let loadMore;
 
   let current = 0;
-  let pageSize = 24;
+  let pageSize = 60;
 
   $: pages = total > 0 ? [...Array(Math.ceil(total / pageSize)).keys()] : [];
 
@@ -20,56 +20,9 @@
     scrollTo(0, 0);
   };
 
-  let chunks;
-  let leftRow;
-  let middleRow;
-  let rightRow;
-
-  function splitToChunks() {
-    chunks = [];
-    leftRow = [];
-    middleRow = [];
-    rightRow = [];
-    for (let i = 0; i < Math.ceil(filtered.length / 24); i++) {
-      chunks.push(
-        filtered.filter((x, j) => {
-          if (j >= i * 24 && j < (i + 1) * 24) {
-            return x;
-          }
-        })
-      );
-    }
-    for (let i = 0; i < chunks.length; i++) {
-      leftRow = [
-        ...leftRow,
-        ...chunks[i].filter((x, j) => {
-          if (j < 8) {
-            return x;
-          }
-        }),
-      ];
-      middleRow = [
-        ...middleRow,
-        ...chunks[i].filter((x, j) => {
-          if (j >= 8 && j < 16) {
-            return x;
-          }
-        }),
-      ];
-      rightRow = [
-        ...rightRow,
-        ...chunks[i].filter((x, j) => {
-          if (j >= 16) {
-            return x;
-          }
-        }),
-      ];
-    }
-  }
-  $: {
-    filtered;
-    splitToChunks();
-  }
+  $: leftRow = filtered.filter((a, i) => i % 3 === 0);
+  $: middleRow = filtered.filter((a, i) => (i + 1) % 3 === 0);
+  $: rightRow = filtered.filter((a, i) => (i + 2) % 3 === 0);
 </script>
 
 <div>

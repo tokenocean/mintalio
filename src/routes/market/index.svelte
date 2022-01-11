@@ -1,7 +1,7 @@
 <script context="module">
   import { post } from "$lib/api";
   export async function load({ fetch }) {
-    const r = await post("/artworks.json", { limit: 24 }, fetch).json();
+    const r = await post("/artworks.json", { limit: 60 }, fetch).json();
 
     return {
       props: {
@@ -71,7 +71,7 @@
 
       const r = await post(
         "/artworks.json",
-        { limit: 24, offset: $offset, order_by, where },
+        { limit: 60, offset: $offset, order_by, where },
         fetch
       ).json();
 
