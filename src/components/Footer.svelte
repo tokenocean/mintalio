@@ -1,5 +1,7 @@
 <script>
   import branding from "$lib/branding";
+  let date = new Date();
+  let year = date.getFullYear();
 </script>
 
 <div class="px-2 mt-24">
@@ -10,7 +12,7 @@
       <a href="/"
         ><img src="/branding/logo-footer.svg" alt="logo" class="w-24" /></a
       >
-      <p class="mt-4">&copy;2021 {branding.projectName}</p>
+      <p class="mt-4">&copy;{year} {branding.projectName}</p>
         <div class="flex items-center mt-12">
           <p class="pr-3">Powered by:</p>
           <div class="bg-black p-4 rounded">
