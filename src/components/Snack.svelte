@@ -40,7 +40,11 @@
   }
 
   .snack {
-    @apply relative w-full flex p-4 rounded text-white;
+    @apply relative w-full flex p-4 rounded;
+  }
+
+  .snack.info {
+    background: #6ed8e0;
   }
 
   .snack.error {

@@ -2,5 +2,3 @@
 build
 hasura
 node_modules
-.svelte-kit
-.svelte

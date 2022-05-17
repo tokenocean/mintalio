@@ -1,27 +1,32 @@
 <script context="module">
-  export async function load({ fetch, page }) {
+  export async function load({ fetch }) {
     const props = await fetch(`/artworks/recent.json`).then((r) => r.json());
 
     return {
-      maxage: 90,
       props,
     };
   }
 </script>
 
 <script>
-  import { onDestroy } from "svelte";
+  import { onMount, onDestroy } from "svelte";
   import { query } from "$lib/api";
   import { Summary } from "$comp";
   import { fade } from "svelte/transition";
-  import { user } from "$lib/store";
   import { Activity, RecentActivityCard, LatestPiecesCard } from "$comp";
   import { err } from "$lib/utils";
   import branding from "$lib/branding";
+  import { prefetch } from "$app/navigation";
+  import { browser } from "$app/env";
+
+  onMount(() => browser && prefetch("/market"));
 
   export let featured;
   export let recent;
   export let latest;
+
+  let current = 0;
+  $: artwork = featured && featured[current] && featured[current].artwork;
 
   let interval = setInterval(() => {
     if (!featured) return;
@@ -30,34 +35,81 @@
   }, 6000);
 
   onDestroy(() => clearInterval(interval));
-
-  let current = 0;
 </script>
 
 <div class="flex header-container mx-auto justify-center marg-bottom">
   <div class="header text-center">
-    <h1 class="text-left md:text-center md:w-full">{branding.projectName}</h1>
+    <h1 class="text-left md:text-center md:w-full">
+      {branding.projectName}
+      <br />digital art
+    </h1>
     <h5 class="md:max-w-lg mx-auto text-left md:text-center">
-      {branding.meta.homeHeroText}
+      Upload, collect, and transact rare digital art on the Liquid Network
     </h5>
-    <h4 class="md:max-w-lg mx-auto text-left md:text-center text-green-500">
-      This site is currently in Beta
-    </h4>
-    <h4 class="md:max-w-lg mx-auto text-left md:text-center mb-8">
-      Join our
-      <a class="text-blue-400" href="https://t.me/mintalio">Telegram Group</a>
-      for updates and support
-    </h4>
-    <div class="grid grid-cols-2 gap-4 mx-auto max-w-lg">
-      <div>
-        <a class="primary-btn" href={`/market`}>Discover</a>
-      </div>
-      <div>
-        <a class="secondary-btn" href={`/a/create`}>Create</a>
-      </div>
-    </div>
+    <a class="primary-btn" href={`/market`}>Start exploring</a>
   </div>
 </div>
+
+{#if artwork}
+  <div class="flex secondary-header marg-bottom">
+    <div
+      class="container flex mx-auto flex-col justify-end md:justify-center secondary-header-text m-10 pl-6 z-10"
+    >
+      <div class="blur-bg">
+        <h2>{artwork.artist.username}</h2>
+        <p>
+          {artwork.title}
+
+          {#if new Date() < new Date("2022-04-15")}
+            <a href="/tag/bitcoinbond">
+              <button
+                class="button-transparent header-button border mt-10"
+                style="border-color: white; color: white"
+              >
+                Visit The Bitcoin Bond Gallery</button
+              ></a
+            >
+          {:else}
+            <a href="/a/{artwork.slug}">
+              <button
+                class="button-transparent header-button border mt-10"
+                style="border-color: white; color: white"
+              >
+                View Artwork</button
+              ></a
+            >
+          {/if}
+        </p>
+      </div>
+    </div>
+
+    {#if artwork.filetype.includes("video")}
+      <video
+        in:fade
+        out:fade
+        class="lazy cover absolute secondary-header"
+        autoplay
+        muted
+        playsinline
+        loop
+        src={`/api/public/${artwork.filename}.${
+          artwork.filetype.split("/")[1]
+        }`}
+        :key={featured[current].id}
+      />
+    {:else}
+      <img
+        in:fade
+        out:fade
+        class="lazy cover absolute secondary-header"
+        alt={artwork.title}
+        src={`/api/public/${artwork.filename}.${
+          artwork.filetype.split("/")[1]
+        }`}
+      />
+    {/if}
+  </div>
+{/if}
 
 <div class="container mx-auto px-10">
   <h3>Recent Activity</h3>
@@ -102,6 +154,34 @@
     margin-bottom: 34px;
   }
 
+  .secondary-header {
+    height: 600px !important;
+    width: 100%;
+    object-fit: cover;
+  }
+
+  .blur-bg {
+    display: flex;
+    padding: 60px;
+    flex-direction: column;
+    background: rgba(54, 58, 74, 0.45);
+    backdrop-filter: blur(30px);
+    box-shadow: 2px 2px 4px 0 rgb(0 0 0 / 10%);
+    border-radius: 8px;
+    color: white;
+    width: 50%;
+    width: fit-content;
+  }
+
+  .blur-bg h2 {
+    color: white !important;
+  }
+
+  .blur-bg p {
+    color: white !important;
+    margin-top: 20px;
+  }
+
   .container.more {
     display: flex;
     justify-content: center;
@@ -112,6 +192,13 @@
   .more .secondary-btn {
     width: 180px;
   }
+
+  .header-button {
+    border: 1px solid;
+    border-radius: 30px;
+    padding: 0.7rem 1.5rem !important;
+  }
+
   h3 {
     margin-bottom: 36px;
   }
@@ -142,12 +229,22 @@
       width: 100%;
     }
 
+    .secondary-header {
+      height: 400px !important;
+    }
+
     .container.more {
       margin-top: 48px;
     }
 
     .marg-bottom {
       margin-bottom: 96px !important;
+    }
+
+    .blur-bg {
+      padding: 24px;
+      width: 75%;
+      width: fit-content;
     }
   }
 </style>

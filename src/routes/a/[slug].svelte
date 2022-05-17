@@ -1,12 +1,12 @@
 <script context="module">
-  import { post } from "$lib/api";
+  import { api, post } from "$lib/api";
   import { browser } from "$app/env";
   import branding from "$lib/branding";
+  import { host } from "$lib/utils";
+  import Comments from "./_comments.svelte";
 
-  export async function load({ fetch, page }) {
-    const props = await fetch(`/artworks/${page.params.slug}.json`).then((r) =>
-      r.json()
-    );
+  export async function load({ fetch, params: { slug } }) {
+    const props = await fetch(`/artworks/${slug}.json`).then((r) => r.json());
 
     let { artwork } = props;
 
@@ -15,37 +15,49 @@
         status: 404,
       };
 
-    if (!browser) post("artworks/viewed", { id: artwork.id }, fetch).json().catch(console.log);
-    artwork.views++;
+    await api.url("/held").post({ id: artwork.id }).json();
+    if (!browser) {
+      try {
+        await post("/artworks/viewed", { id: artwork.id }, fetch).res();
+        artwork.views++;
+      } catch (e) {
+        console.log(e);
+      }
+    }
+
     props.views = artwork.views;
 
     let metadata = { ...branding.meta };
     metadata.title = metadata.title + " - " + artwork.title;
     metadata.keywords =
       metadata.keywords + " " + artwork.tags.map((t) => t.tag).join(" ");
-    metadata.description = artwork.description;
+    metadata.description = artwork.description.replace(/(?:\r\n|\r|\n)/g, " ");
 
-    if (artwork.filetype.includes("video"))
-      metadata.video = "/api/ipfs/" + artwork.filename;
-    else metadata.image = "/api/ipfs/" + artwork.filename;
+    let type = "image";
+    metadata[type] = `${host}/api/public/${artwork.filename}.png`;
+    if (artwork.filetype.includes("video")) type = "video";
+
+    metadata[type] = `${host}/api/public/${artwork.filename}.${
+      artwork.filetype.split("/")[1]
+    }`;
 
     props.metadata = metadata;
 
     return {
-      maxage: 90,
       props,
     };
   }
 </script>
 
 <script>
+  import { session } from "$app/stores";
   import Fa from "svelte-fa";
   import {
     faChevronDown,
     faChevronUp,
     faTimes,
   } from "@fortawesome/free-solid-svg-icons";
-  import { getArtwork } from "$queries/artworks";
+  import { getArtworkBySlug, deleteArtwork } from "$queries/artworks";
   import { faHeart, faImage } from "@fortawesome/free-regular-svg-icons";
   import { page } from "$app/stores";
   import { compareAsc, format, parseISO } from "date-fns";
@@ -59,9 +71,18 @@
   } from "$comp";
   import Sidebar from "./_sidebar.svelte";
   import { tick, onDestroy } from "svelte";
-  import { art, meta, prompt, password, user, token, psbt } from "$lib/store";
+  import { art, meta, prompt, password, psbt, commentsLimit } from "$lib/store";
   import countdown from "$lib/countdown";
-  import { goto, err, explorer, info, linkify, units } from "$lib/utils";
+  import {
+    confirm,
+    goto,
+    err,
+    explorer,
+    info,
+    linkify,
+    units,
+    underway,
+  } from "$lib/utils";
   import { requirePassword } from "$lib/auth";
   import {
     createOffer,
@@ -69,33 +90,45 @@
     requestSignature,
     sign,
     broadcast,
+    releaseToSelf,
+    ACCEPTED,
   } from "$lib/wallet";
   import { Psbt } from "liquidjs-lib";
-  import { api, query } from "$lib/api";
-  import { SocialShare } from "$comp";
+  import { query } from "$lib/api";
 
   export let artwork, others, metadata, views;
 
+  let release = async () => {
+    await requirePassword($session);
+    $psbt = await releaseToSelf(artwork);
+    $psbt = await sign();
+    $psbt = await requestSignature($psbt);
+    await broadcast($psbt);
+  };
+
   $: disabled =
-    !artwork ||
+    loading ||
+    (artwork.owner_id === $session.user?.id && underway(artwork)) ||
     artwork.transactions.some(
       (t) => ["purchase", "creation", "cancel"].includes(t.type) && !t.confirmed
     );
 
   let start_counter, end_counter, now, timeout;
 
-  let id = artwork ? artwork.id : $page.params.id;
-
-  let fetch = async () => {
-    query(getArtwork, { id }).then((res) => {
-      artwork = res.artworks_by_pk;
+  let refreshArtwork = async () => {
+    try {
+      let { artworks } = await query(getArtworkBySlug, {
+        slug: artwork.slug,
+        limit: $commentsLimit,
+      });
+      artwork = artworks[0];
       artwork.views = views;
-
-      $art = artwork;
-    });
+    } catch (e) {
+      console.log(e);
+    }
   };
 
-  let poll = setInterval(fetch, 2500);
+  let poll = setInterval(refreshArtwork, 2500);
 
   onDestroy(() => {
     $art = undefined;
@@ -126,22 +159,35 @@
   let val, sats, ticker;
   let amount;
 
-  $: transaction.amount = sats && sats(amount);
-
+  let transaction = {};
   let makeOffer = async (e) => {
     try {
       if (e) e.preventDefault();
       offering = true;
+
+      transaction.amount = sats(amount);
+      transaction.asset = artwork.asset;
       transaction.type = "bid";
 
-      await requirePassword();
+      await requirePassword($session);
 
       $psbt = await createOffer(artwork, transaction.amount);
       $psbt = await sign();
+
       transaction.psbt = $psbt.toBase64();
-      transaction.hash = $psbt.__CACHE.__TX.getId();
+      transaction.hash = $psbt.data.globalMap.unsignedTx.tx.getId();
+
       await save();
-      await fetch();
+      await refreshArtwork();
+
+      await api
+        .url("/offer-notifications")
+        .auth(`Bearer ${$session.jwt}`)
+        .post({
+          artworkId: artwork.id,
+          transactionHash: transaction.hash,
+        });
+
       offering = false;
     } catch (e) {
       console.log(e);
@@ -155,7 +201,7 @@
     transaction.asset = artwork.asking_asset;
 
     let { data, errors } = await api
-      .auth(`Bearer ${$token}`)
+      .auth(`Bearer ${$session.jwt}`)
       .url("/transaction")
       .post({ transaction })
       .json();
@@ -174,20 +220,14 @@
     amountInput.focus();
   };
 
-  let transaction = {
-    artwork_id: null,
-    amount: null,
-    type: "bid",
-    hash: "",
-  };
-
   let loading;
   let buyNow = async () => {
     try {
-      await requirePassword();
+      await requirePassword($session);
       loading = true;
 
       transaction.amount = -artwork.list_price;
+      transaction.asset = artwork.asset;
       transaction.type = "purchase";
 
       $psbt = await executeSwap(artwork);
@@ -204,17 +244,37 @@
       transaction.psbt = $psbt.toBase64();
 
       await save();
+      await refreshArtwork();
 
-      transaction.amount = 1;
-      transaction.asset = artwork.asset;
-      transaction.user;
+      await api
+        .url("/mail-purchase-successful")
+        .auth(`Bearer ${$session.jwt}`)
+        .post({
+          userId: $session.user.id,
+          artworkId: artwork.id,
+        });
 
-      await fetch();
+      await api.url("/mail-artwork-sold").auth(`Bearer ${$session.jwt}`).post({
+        userId: artwork.owner.id,
+        artworkId: artwork.id,
+      });
     } catch (e) {
       err(e);
     }
 
     loading = false;
+  };
+
+  let handleDelete = async () => {
+    try {
+      if ((await confirm()) === ACCEPTED) {
+        await query(deleteArtwork, { id: artwork.id });
+        info("Artwork deleted");
+        goto("/market");
+      }
+    } catch (e) {
+      err(e);
+    }
   };
 
   let showPopup = false;
@@ -227,7 +287,7 @@
 <div class="container mx-auto mt-10 md:mt-20">
   <div class="flex flex-wrap">
     <div class="lg:text-left w-full lg:w-1/3 lg:max-w-xs">
-      <h1 class="text-3xl font-black primary-color">
+      <h1 class="text-3xl font-black primary-color break-all">
         {artwork.title || "Untitled"}
       </h1>
       <div class="flex mt-4 mb-6">
@@ -252,7 +312,7 @@
       </div>
 
       <div class="flex flex-wrap justify-between text-left">
-        <a href={`/u/${artwork.artist.username}`}>
+        <a href={`/${artwork.artist.username}`}>
           <div class="flex mb-6">
             <Avatar user={artwork.artist} />
             <div class="ml-2 secondary-color">
@@ -261,17 +321,28 @@
             </div>
           </div>
         </a>
-        <a href={`/u/${artwork.owner.username}`}>
-          <div class="flex mb-6 secondary-color">
-            <Avatar user={artwork.owner} />
-            <div class="ml-2">
-              <div>@{artwork.owner.username}</div>
-              <div class="text-xs text-gray-600">
-                {artwork.held ? "" : "Presumed "}Owner
+        {#if artwork.artist_id !== artwork.owner_id && artwork.held}
+          <a href={`/${artwork.owner.username}`}>
+            <div class="flex mb-6 secondary-color">
+              <Avatar user={artwork.owner} />
+              <div class="ml-2">
+                <div>@{artwork.owner.username}</div>
+                <div class="text-xs text-gray-600">Owner</div>
               </div>
             </div>
-          </div>
-        </a>
+          </a>
+        {/if}
+        {#if !artwork.held}
+          <a href="https://bitcoin.org/bitcoin.pdf">
+            <div class="flex mb-6 secondary-color">
+              <Avatar src="/satoshi.jpg" />
+              <div class="ml-2">
+                <div>@anon</div>
+                <div class="text-xs text-gray-600">Token Held Externally</div>
+              </div>
+            </div>
+          </a>
+        {/if}
       </div>
 
       <div class="mobileImage">
@@ -284,10 +355,7 @@
         {#if artwork.list_price}
           <div class="my-2">
             <div class="text-sm mt-auto">List Price</div>
-            <div class="text-lg">
-              {list_price}
-              {ticker}
-            </div>
+            <div class="text-lg">{list_price} {ticker}</div>
           </div>
         {/if}
         {#if artwork.reserve_price}
@@ -311,7 +379,7 @@
 
       {#if loading}
         <ProgressLinear />
-      {:else if $user && $user.id === artwork.owner_id && artwork.held}
+      {:else if $session.user && $session.user.id === artwork.owner_id && artwork.held}
         <div class="w-full mb-2">
           <a
             sveltekit:prefetch
@@ -320,6 +388,16 @@
             class:disabled>List</a
           >
         </div>
+        {#if artwork.held === "multisig" && !artwork.has_royalty && !artwork.auction_end}
+          <div class="w-full mb-2">
+            <a
+              href="/"
+              on:click|preventDefault={release}
+              class="block text-center text-sm secondary-btn w-full"
+              class:disabled>Release</a
+            >
+          </div>
+        {/if}
         <div class="w-full mb-2">
           <a
             href={`/a/${artwork.slug}/transfer`}
@@ -328,12 +406,19 @@
           >
         </div>
 
-        {#if $user.id === artwork.artist_id}
+        {#if $session.user.id === artwork.artist_id}
           <div class="w-full mb-2">
             <a
               href={`/a/${artwork.slug}/edit`}
               class="block text-center text-sm secondary-btn w-full"
               class:disabled>Edit</a
+            >
+          </div>
+          <div class="w-full mb-2">
+            <a
+              on:click={handleDelete}
+              class="block text-center text-sm secondary-btn w-full cursor-pointer"
+              >Delete</a
             >
           </div>
         {/if}
@@ -350,7 +435,7 @@
           {#if offering}
             <ProgressLinear />
           {:else}
-            <form on:submit={makeOffer}>
+            <form on:submit|preventDefault={makeOffer}>
               <div class="flex flex-col mb-4">
                 <div>
                   <div class="mt-1 relative rounded-md shadow-sm">
@@ -407,7 +492,7 @@
 
       {#if artwork.description}
         <div
-          class="mob-desc description text-gray-600 whitespace-pre-wrap break-words"
+          class="mob-desc description text-gray-600 whitespace-pre-wrap break-all"
         >
           <h4 class="mt-10 font-bold">About this artwork</h4>
           <div class="desc-text {showMore ? 'openDesc' : ''}">
@@ -449,7 +534,7 @@
       </div>
 
       {#if artwork.description}
-        <div class="desk-desc description text-gray-600 break-words">
+        <div class="desk-desc description text-gray-600 break-all">
           <h4 class="mt-10 mb-5 font-bold">About this artwork</h4>
           <div class="whitespace-pre-wrap">
             {@html linkify(artwork.description)}
@@ -472,14 +557,21 @@
         />
       </div>
 
+      <!-- Comments -->
+      {#if artwork.held}
+        <div class="mt-64">
+          <Comments bind:artwork bind:refreshArtwork />
+        </div>
+      {/if}
+
       {#if others.length}
-        <div class="w-full mt-64 mb-4">
+        <div class="w-full mb-4">
           <h2 class="text-2xl font-bold primary-color py-10 px-0">
             More by this artist
           </h2>
           <div class="w-full grid md:grid-cols-3 gap-4 others">
             {#each others as artwork (artwork.id)}
-              <Card {artwork} showDetails={false} />
+              <Card {artwork} showDetails={false} noAudio={true} />
             {/each}
           </div>
         </div>
@@ -500,6 +592,7 @@
   }
 
   .disabled {
+    pointer-events: none;
     @apply text-gray-400 border-gray-400;
   }
 

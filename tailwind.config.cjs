@@ -1,6 +1,6 @@
 module.exports = {
   mode: 'jit',
-  purge: [
+  content: [
     './src/**/*.{js,svelte}',
   ],
   theme: {
@@ -12,8 +12,8 @@ module.exports = {
     },
     extend: {
       colors: {
-        primary: "#3C63C4",
-        secondary: "#32373C",
+        primary: "#8feef5",
+        secondary: "#3ba5ac",
       } 
     } 
   },

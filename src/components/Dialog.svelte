@@ -1,4 +1,5 @@
 <script>
+  import { browser } from "$app/env";
   import Fa from "svelte-fa";
   import { faTimes } from "@fortawesome/free-solid-svg-icons";
   import { prompt } from "$lib/store";
@@ -8,9 +9,13 @@
 
   $: hideControls = comp && comp.hide;
 
-  let focus = (p) =>
-    p && tick().then(() => ok && ok.focus() && console.log("HOY"));
+  let focus = (p) => browser && p && tick().then(() => ok && ok.focus());
   $: focus($prompt);
+
+  let cancel = () => {
+    if (comp.cancel) comp.cancel();
+    $prompt = undefined;
+  };
 </script>
 
 {#if $prompt}
@@ -48,11 +53,7 @@
             >
               Continue
             </button>
-            <button
-              type="button"
-              class="secondary-btn"
-              on:click={() => ($prompt = undefined)}
-            >
+            <button type="button" class="secondary-btn" on:click={cancel}>
               Cancel
             </button>
           </div>

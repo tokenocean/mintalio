@@ -1,17 +1,24 @@
 <svelte:options accessors={true} />
 
 <script>
+  import { session } from "$app/stores";
   import { tick } from "svelte";
-  import { prompt, snack, psbt, user, token } from "$lib/store";
+  import { prompt, snack, psbt } from "$lib/store";
   import { broadcast, sign, requestSignature } from "$lib/wallet";
   import { err, info } from "$lib/utils";
   import { requirePassword } from "$lib/auth";
   import { Psbt } from "liquidjs-lib";
   import { api } from "$lib/api";
+  import { createEventDispatcher } from "svelte";
 
-  export const accept = async ({ id, amount, artwork, psbt: base64, user }) => {
+  const dispatch = createEventDispatcher();
+
+  export const accept = async (transaction, cb) => {
+    if (transaction.accepted) return;
+
     try {
-      await requirePassword();
+      let { id, amount, artwork, psbt: base64, user } = transaction;
+      await requirePassword($session);
       $psbt = Psbt.fromBase64(base64);
       $psbt = await sign();
       if (artwork.has_royalty || artwork.auction_end) {
@@ -19,7 +26,7 @@
       }
 
       let result = await api
-        .auth(`Bearer ${$token}`)
+        .auth(`Bearer ${$session.jwt}`)
         .url("/accept")
         .post({
           id: artwork.id,
@@ -32,7 +39,12 @@
         })
         .json();
 
+      dispatch("accepted", { id });
+      transaction.accepted = true;
+
       info("Offer accepted! Sold!");
+
+      cb && cb();
     } catch (e) {
       err(e);
     }

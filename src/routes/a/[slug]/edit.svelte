@@ -1,6 +1,6 @@
 <script context="module">
-  export async function load({ fetch, page, session }) {
-    const props = await fetch(`/artworks/${page.params.slug}.json`).then((r) =>
+  export async function load({ fetch, params, session }) {
+    const props = await fetch(`/artworks/${params.slug}.json`).then((r) =>
       r.json()
     );
 
@@ -10,7 +10,6 @@
     } 
 
     return {
-      maxage: 90,
       props,
     };
   }
@@ -27,7 +26,6 @@
   import { updateArtwork, updateTags } from "$queries/artworks";
   import { err, goto } from "$lib/utils";
   import { password, user, token } from "$lib/store";
-  import { requireLogin, requirePassword } from "$lib/auth";
   import { query } from "$lib/api";
 
   export let artwork;
@@ -39,7 +37,7 @@
 
     query(updateTags, {
       tags: tags.map(({ tag }) => ({ tag, artwork_id: id })),
-      id,
+      artwork_id: id,
     })
       .then(() => {
         query(updateArtwork, {

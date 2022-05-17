@@ -1,7 +1,9 @@
 <script>
-  import { user } from "$lib/store";
+  import { session } from "$app/stores";
   import { createFavorite, deleteFavorite } from "$queries/favorites";
   import { requireLogin } from "$lib/auth";
+  import { err } from "$lib/utils";
+  import { query } from "$lib/api";
 
   import Fa from "svelte-fa";
   import { faHeart } from "@fortawesome/free-regular-svg-icons";
@@ -13,16 +15,15 @@
 
   let favorite = async () => {
     try {
-      await requireLogin();
+      await requireLogin(null, $session.jwt);
       let { id: artwork_id } = artwork;
-      let { id: user_id } = $user;
+      let { id: user_id } = $session.user;
 
       if (favorited) {
         await query(deleteFavorite, { artwork_id, user_id });
         artwork.num_favorites--;
         favorited = false;
       } else {
-        createFavorite({ artwork_id });
         await query(createFavorite, { artwork_id });
         artwork.num_favorites++;
         favorited = true;

@@ -1,5 +1,7 @@
-const { coinos } = require("./api");
-const { networks } = require("liquidjs-lib");
+import { coinos } from "./api.js";
+import { networks } from "liquidjs-lib";
+import { app } from "./app.js";
+import { auth } from "./auth.js";
 
 let network;
 if (process.env.LIQUID_ELECTRS_URL.includes("blockstream")) {
@@ -9,7 +11,7 @@ if (process.env.LIQUID_ELECTRS_URL.includes("blockstream")) {
 }
 
 const btc = network.assetHash;
-  const fee = 100;
+const fee = 100;
 
 app.post("/bitcoin", auth, async (req, res) => {
   let network = "bitcoin";
@@ -35,8 +37,8 @@ app.post("/bitcoin", auth, async (req, res) => {
       },
     })
     .json();
-  
-    return { address, fee };
+
+  return { address, fee };
 });
 
 app.post("/liquid", auth, async (req, res) => {
@@ -64,8 +66,8 @@ app.post("/liquid", auth, async (req, res) => {
       },
     })
     .json();
-  
-    return { address: confidentialAddress, fee };
+
+  return { address: confidentialAddress, fee };
 });
 
 app.post("/lightning", auth, async (req, res) => {
