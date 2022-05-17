@@ -1,4 +1,4 @@
-lockfileVersion: 5.3
+lockfileVersion: 5.4
 
 specifiers:
   '@fortawesome/fontawesome-free': ^5.15.4
@@ -74,7 +74,7 @@ devDependencies:
   postcss-nesting: 7.0.1
   postcss-preset-env: 6.7.0
   prettier: 2.5.1
-  prettier-plugin-svelte: 2.5.0_prettier@2.5.1+svelte@3.44.2
+  prettier-plugin-svelte: 2.5.0_voensoq44pwbqydbbh7jyzyda4
   qrcode-generator-es6: 1.1.4
   rollup: 2.61.0
   simple-svelte-autocomplete: 2.2.4
@@ -82,9 +82,9 @@ devDependencies:
   subscriptions-transport-ws: 0.9.19_graphql@15.7.2
   svelte: 3.44.2
   svelte-fa: 2.4.0
-  svelte-preprocess: 4.9.8_4d00e6e9f7f5e449d97e7d1c5d5a9a9b
+  svelte-preprocess: 4.9.8_juaon2px6xsetwl6puof2wu2tm
   svelte-select: 4.4.6
-  tailwindcss: 2.2.19_6b4e3d148bdcb715d5f821ed0a9c268b
+  tailwindcss: 2.2.19_nnhd2fel3s3rlvpyehwqvhbgrm
   uuid: 8.3.2
   vite-plugin-shim-react-pdf: 1.0.4
   wretch: 1.7.6
@@ -2215,7 +2215,7 @@ packages:
       source-map-js: 1.0.1
     dev: true
 
-  /prettier-plugin-svelte/2.5.0_prettier@2.5.1+svelte@3.44.2:
+  /prettier-plugin-svelte/2.5.0_voensoq44pwbqydbbh7jyzyda4:
     resolution: {integrity: sha512-+iHY2uGChOngrgKielJUnqo74gIL/EO5oeWm8MftFWjEi213lq9QYTOwm1pv4lI1nA61tdgf80CF2i5zMcu1kw==}
     peerDependencies:
       prettier: ^1.16.4 || ^2.0.0
@@ -2553,7 +2553,7 @@ packages:
       svelte: 3.44.2
     dev: true
 
-  /svelte-preprocess/4.9.8_4d00e6e9f7f5e449d97e7d1c5d5a9a9b:
+  /svelte-preprocess/4.9.8_juaon2px6xsetwl6puof2wu2tm:
     resolution: {integrity: sha512-EQS/oRZzMtYdAprppZxY3HcysKh11w54MgA63ybtL+TAZ4hVqYOnhw41JVJjWN9dhPnNjjLzvbZ2tMhTsla1Og==}
     engines: {node: '>= 9.11.2'}
     requiresBuild: true
@@ -2619,7 +2619,7 @@ packages:
     engines: {node: '>=0.10.0'}
     dev: true
 
-  /tailwindcss/2.2.19_6b4e3d148bdcb715d5f821ed0a9c268b:
+  /tailwindcss/2.2.19_nnhd2fel3s3rlvpyehwqvhbgrm:
     resolution: {integrity: sha512-6Ui7JSVtXadtTUo2NtkBBacobzWiQYVjYW0ZnKaP9S1ZCKQ0w7KVNz+YSDI/j7O7KCMHbOkz94ZMQhbT9pOqjw==}
     engines: {node: '>=12.13.0'}
     hasBin: true
