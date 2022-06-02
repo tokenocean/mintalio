@@ -17,6 +17,7 @@ import {
   deleteUtxo,
   getActiveBids,
   getActiveListings,
+  getAssetArtworks,
   getAvatars,
   getContract,
   getCurrentUser,
@@ -237,6 +238,7 @@ let getUser = async (headers) => {
   return data.currentuser[0];
 };
 
+let titles = {};
 app.get("/transactions", auth, async (req, res) => {
   try {
     let { id, address, multisig } = await getUser(req.headers);
@@ -244,7 +246,18 @@ app.get("/transactions", auth, async (req, res) => {
     await updateTransactions(address, id);
     await updateTransactions(multisig, id);
 
-    res.send(await q(getTransactions, { id }));
+    let { transactions } = await q(getTransactions, { id });
+    for (let i = 0; i < transactions.length; i++) {
+      let { asset } = transactions[i];
+      if (!titles[asset]) {
+        let { artworks } = await q(getAssetArtworks, { assets: transactions.map(tx => tx.asset) });
+        artworks.map((a) => titles[a.asset] = a.title);
+      } 
+
+      transactions[i].label = titles[asset];
+    } 
+
+    res.send(transactions);
   } catch (e) {
     console.log(e);
     res.code(500).send(e.message);
@@ -317,7 +330,7 @@ let updateTransactions = async (address, user_id) => {
         txcache[prev] = tx;
 
         let { asset, value, scriptpubkey_address: a } = tx.vout[vout];
-        if (address === a) total[asset] = (total[asset] || 0) - parseInt(value);
+        if (asset && address === a) total[asset] = (total[asset] || 0) - parseInt(value);
       } catch (e) {
         console.log("problem finding input", prev, e);
       }
@@ -325,7 +338,7 @@ let updateTransactions = async (address, user_id) => {
 
     for (let k = 0; k < vout.length; k++) {
       let { asset, value, scriptpubkey_address: a } = vout[k];
-      if (address === a) total[asset] = (total[asset] || 0) + parseInt(value);
+      if (asset && address === a) total[asset] = (total[asset] || 0) + parseInt(value);
     }
 
     let assets = Object.keys(total);
@@ -408,10 +421,11 @@ let scanUtxos = async (address) => {
 
   let uniq = (a, k) => [...new Map(a.map((x) => [k(x), x])).values()];
   let { transactions } = await q(getTransactions, { id });
+
   transactions = uniq(
     transactions.sort((a, b) => a.sequence - b.sequence),
     (tx) => tx.hash + tx.asset
-  ).filter((tx) => !outs.length || tx.sequence > outs[0].sequence);
+  )
 
   transactions.map(async ({ id, hash, asset: txAsset, json, confirmed }) => {
     try {
