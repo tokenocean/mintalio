@@ -199,12 +199,9 @@
                 <div class="mx-auto">No creations yet</div>
               {/each}
               {#if $artworksLimit !== undefined && subject.creations.length}
-                <button
-                  class="primary-btn w-full"
-                  on:click={() => {
-                    $artworksLimit = undefined;
-                    refreshUser();
-                  }}>Show all</button
+                <a sveltekit:prefetch
+                  class="primary-btn mx-auto mb-12 w-full"
+                  href={`/artist/${subject.username}`}>Show all</a
                 >
               {/if}
             </div>
@@ -220,12 +217,9 @@
                 <div class="mx-auto">Nothing collected yet</div>
               {/each}
               {#if $artworksLimit !== undefined && subject.holdings.length}
-                <button
-                  class="primary-btn w-full"
-                  on:click={() => {
-                    $artworksLimit = undefined;
-                    refreshUser();
-                  }}>Show all</button
+                <a sveltekit:prefetch
+                  class="primary-btn mx-auto mb-12 w-full"
+                  href={`/${subject.username}/collection`}>Show all</a
                 >
               {/if}
             </div>

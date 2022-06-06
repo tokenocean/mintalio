@@ -174,8 +174,8 @@ export const getArtworksByOwner = (id) => `query {
   }
 }`;
 
-export const getArtworkByAsset = (asset) => `query {
-  artworks(where: {asset: {_eq: "${asset}"}}, limit: 1) {
+export const getArtworkByAsset = `query($asset: String!) {
+  artworks(where: {asset: {_eq: $asset}}, limit: 1) {
     ${fields}
   }
 }`;
@@ -212,6 +212,12 @@ export const getArtworksByArtist = `query($id: uuid!, $limit: Int) {
 export const getArtworksByUsername = (username) => `query {
   artworks(where: {artist: { username: {_eq: "${username}"}}}) {
     ${fields}
+  }
+}`;
+
+export const getCollectionByUsername = `query($username: String!) {
+  artworks(where: {owner: { username: {_eq: $username }}}) {
+    ${marketFields}
   }
 }`;
 
@@ -316,3 +322,4 @@ export const createComment = `mutation ($comment: comments_insert_input!) {
     id
   }
 }`;
+
