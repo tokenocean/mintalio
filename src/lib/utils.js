@@ -19,7 +19,7 @@ import { getUserByAddress } from "$queries/users.js";
 export const btc = import.meta.env.VITE_BTC;
 export const cad = import.meta.env.VITE_CAD;
 export const usd = import.meta.env.VITE_USD;
-export const host = import.meta.env.VITE_HOST;
+
 export const label = ({ asset, name }, field = "ticker") =>
   name || (asset
     ? tickers[asset]

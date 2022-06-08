@@ -1,11 +1,7 @@
 <script>
   import { onMount } from "svelte";
   import Fa from "svelte-fa";
-  import {
-    faVolumeUp,
-    faVolumeMute,
-    faHeadphones,
-  } from "@fortawesome/free-solid-svg-icons";
+  import { faVolumeUp, faVolumeMute } from "@fortawesome/free-solid-svg-icons";
   import { loaded } from "$lib/store";
 
   export let artwork;
@@ -13,10 +9,8 @@
   export let thumb = true;
   export let preview = false;
   export let popup = false;
-  export let classes = "";
-  export let noAudio = false;
 
-  let img, vid, aud;
+  let img, vid;
   $: path =
     artwork &&
     (thumb
@@ -25,8 +19,8 @@
 
   $: cover = !showDetails;
   $: contain = showDetails;
-  $: setLoaded(img, vid, aud);
-  let setLoaded = (img, vid, aud) => {
+  $: setLoaded(img, vid);
+  let setLoaded = (img, vid) => {
     img &&
       (img.onload = () => {
         $loaded[artwork.id] = true;
@@ -35,12 +29,6 @@
 
     vid &&
       (vid.onloadeddata = () => {
-        $loaded[artwork.id] = true;
-        $loaded = $loaded;
-      });
-
-    aud &&
-      (aud.onerror = () => {
         $loaded[artwork.id] = true;
         $loaded = $loaded;
       });
@@ -115,7 +103,7 @@
     on:blur={out}
   >
     <video
-      class={`lazy ${classes}`}
+      class="lazy"
       autoplay
       muted
       playsinline
@@ -137,27 +125,9 @@
       </button>
     {/if}
   </div>
-{:else if artwork.filetype && artwork.filetype.includes("audio")}
-  <div
-    class="p-5 bg-primary/50 flex justify-center items-center h-full w-full mx-auto rounded-lg"
-  >
-    <img src class="hidden" bind:this={aud} alt="" />
-    <figure>
-      <Fa icon={faHeadphones} class="mx-auto" size="3x" />
-
-      {#if noAudio === false}
-        <audio class="mx-auto" controls src={preview || path}>
-          Your browser does not support the
-          <code>audio</code> element.
-        </audio>
-      {/if}
-      <figcaption class="text-center">NFT audio file</figcaption>
-    </figure>
-  </div>
 {:else}
-  <div class="w-full" class:cover class:contain>
+  <div class="w-full">
     <img
-      class={`${classes}`}
       src={preview || path ? path : "/liquid_logo.svg"}
       alt={artwork.title}
       bind:this={img}
@@ -172,16 +142,9 @@
     position: relative;
   }
 
-  .contain img,
-  .contain video {
-    height: 350px;
-    width: 100%;
-    object-fit: cover;
-  }
-
   img,
   video {
-    max-height: 70vh;
+    max-height: 90vh;
     @apply mx-auto;
   }
 

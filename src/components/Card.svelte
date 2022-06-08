@@ -44,7 +44,7 @@
 <div
   class="{showDetails ? 'card' : ''} flex {!showDetails || $loaded[artwork.id]
     ? 'bg-white'
-    : 'bg-gray-100'} flex-col justify-between h-full"
+    : 'bg-gray-100'} flex-col justify-between m-2"
   in:fade
 >
   <div {style}>
@@ -58,13 +58,13 @@
     <div class="bg-white mb-auto">
       <div class="p-4">
         <div class="flex flex-row justify-between h-20">
-          <a href={`/a/${artwork.slug}`} class="mr-2">
-            <h1 class="text-xl break-all overflow-y-hidden max-h-14">
+          <a href={`/a/${artwork.slug}`} class="mr-2 text-secondary">
+            <p>
               {artwork.title || "Untitled"}
               {#if !(artwork.transferred_at || artwork.asking_asset)}
                 (unlisted)
               {/if}
-            </h1>
+            </p>
             {#if artwork.editions > 1}
               <h2 class="text-xs text-gray-400 font-light mb-auto">
                 Edition
@@ -138,8 +138,6 @@
         Starts in:
         {start_counter}
       </div>
-    {:else}
-      <div class="p-3 rounded-b-lg">&nbsp;</div>
     {/if}
   {/if}
 </div>
@@ -159,3 +157,4 @@
     font-size: 15px;
   }
 </style>
+

@@ -4,81 +4,48 @@
   import { onMount, tick } from "svelte";
 
   export let filtered;
+  let w, el;
+  let loading = true;
+  let div;
 
-  let chunks;
-  let leftRow;
-  let middleRow;
-  let rightRow;
+  $: cols = w >= 1024 ? 3 : w >= 640 ? 2 : 1;
+  $: c = cols > 1 ? `w-1/${cols}` : "w-full";
 
-  function splitToChunks() {
-    chunks = [];
-    leftRow = [];
-    middleRow = [];
-    rightRow = [];
-    for (let i = 0; i < Math.ceil(filtered.length / 24); i++) {
-      chunks.push(
-        filtered.filter((x, j) => {
-          if (j >= i * 24 && j < (i + 1) * 24) {
-            return x;
-          }
-        })
-      );
-    }
-    for (let i = 0; i < chunks.length; i++) {
-      leftRow = [
-        ...leftRow,
-        ...chunks[i].filter((x, j) => {
-          if (j < 8) {
-            return x;
-          }
-        }),
-      ];
-      middleRow = [
-        ...middleRow,
-        ...chunks[i].filter((x, j) => {
-          if (j >= 8 && j < 16) {
-            return x;
-          }
-        }),
-      ];
-      rightRow = [
-        ...rightRow,
-        ...chunks[i].filter((x, j) => {
-          if (j >= 16) {
-            return x;
-          }
-        }),
-      ];
-    }
-  }
-  $: {
-    filtered;
-    splitToChunks();
-  }
+  let setHeight = () => {
+    let h = div.clientHeight;
+    el.style.height = `${(h + 32 * filtered.length) / cols}px`;
+    loading = false;
+  };
+
+  let t;
+  let resize = () => {
+    loading = true;
+    clearTimeout(t);
+    t = setTimeout(() => setHeight(), 50);
+  };
+
+  onMount(resize);
 </script>
 
-<div>
-  <div class="sm:grid sm:grid-cols-2 sm:gap-10 lg:grid-cols-3">
-    <div>
-      {#each leftRow as artwork, i}
-        <div class="market-gallery w-full mb-20">
-          <Card {artwork} />
-        </div>
-      {/each}
-    </div>
-    <div>
-      {#each middleRow as artwork, i}
-        <div class="market-gallery w-full mb-20">
-          <Card {artwork} />
-        </div>
-      {/each}
-    </div>
-    <div>
-      {#each rightRow as artwork, i}
-        <div class="market-gallery w-full mb-20">
-          <Card {artwork} />
-        </div>
-      {/each}
-    </div>
+<svelte:window bind:innerWidth={w} on:resize={resize} />
+
+{#if loading}
+  <div bind:this={div}>
+    {#each filtered as artwork, i}
+      <div class={c}>
+        <Card {artwork} />
+      </div>
+    {/each}
   </div>
+{/if}
+
+<div
+  class="flex align-start flex-col flex-wrap justify-start max-w-full"
+  bind:this={el} class:hidden={loading}
+>
+  {#each filtered as artwork, i}
+    <div class={c}>
+      <Card {artwork} />
+    </div>
+  {/each}
 </div>
