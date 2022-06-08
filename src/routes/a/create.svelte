@@ -231,7 +231,7 @@
               showDetails={false}
               thumb={false}
             />
-            <div class="w-full bg-grey-light p-8">
+            <div class="w-full bg-grey-light text-white p-8">
               <div
                 class="font-light p-4 mx-auto max-w-xs text-center"
                 class:bg-primary={percent >= 100 && artwork.filename}
