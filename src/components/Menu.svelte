@@ -1,6 +1,6 @@
 <script>
-  import branding from "$lib/branding";
   import { session } from "$app/stores";
+  import branding from "$lib/branding";
   import { Avatar, Search } from "$comp";
 
   export let open = false;
