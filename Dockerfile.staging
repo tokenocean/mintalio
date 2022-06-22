@@ -6,8 +6,8 @@ ENV NODE_ENV $NODE_ENV
 WORKDIR /app
 COPY . .
 RUN sed -i '/cypress/d' package.json
-RUN sed -i 's/raretoshi.com/raretoshi.blockstream.com/g' .env.production
-RUN NODE_ENV=development pnpm i
+RUN cp .env.staging .env.production
+RUN mv /deps/node_modules /app
 RUN pnpm build
 
 CMD ["node", "build"]
