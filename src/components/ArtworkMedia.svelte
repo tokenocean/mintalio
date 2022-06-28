@@ -128,6 +128,7 @@
 {:else}
   <div class="w-full">
     <img
+      class="w-full"
       src={preview || path ? path : "/liquid_logo.svg"}
       alt={artwork.title}
       bind:this={img}

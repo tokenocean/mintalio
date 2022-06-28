@@ -13,7 +13,9 @@
 
   let setHeight = () => {
     let h = div.clientHeight;
-    el.style.height = `${(h + 32 * filtered.length) / cols}px`;
+    console.log(h);
+    el.style.height = `${(h * 1.3) / cols}px`;
+    console.log(el);
     loading = false;
   };
 
@@ -21,7 +23,7 @@
   let resize = () => {
     loading = true;
     clearTimeout(t);
-    t = setTimeout(() => setHeight(), 50);
+    t = setTimeout(() => setHeight(), 10);
   };
 
   onMount(resize);
@@ -30,7 +32,7 @@
 <svelte:window bind:innerWidth={w} on:resize={resize} />
 
 {#if loading}
-  <div bind:this={div}>
+  <div bind:this={div} class="invisible">
     {#each filtered as artwork, i}
       <div class={c}>
         <Card {artwork} />
@@ -40,8 +42,9 @@
 {/if}
 
 <div
-  class="flex align-start flex-col flex-wrap justify-start max-w-full"
-  bind:this={el} class:hidden={loading}
+  class="flex align-start flex-col flex-wrap justify-start bg-red-200"
+  bind:this={el}
+  class:hidden={loading}
 >
   {#each filtered as artwork, i}
     <div class={c}>
