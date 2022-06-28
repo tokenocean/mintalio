@@ -47,7 +47,7 @@
 <div
   class="{showDetails ? 'card' : ''} flex {!showDetails || $loaded[artwork.id]
     ? 'bg-white'
-    : 'bg-gray-100'} flex-col justify-between"
+    : 'bg-gray-100'} flex-col justify-between mb-4 break-inside-avoid-column"
   in:fade
 >
   <div {style}>
