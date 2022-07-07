@@ -50,3 +50,4 @@ export const acceptStatus = writable();
 export const messageUser = writable({});
 export const tipUser = writable({});
 export const bitcoinUnitLocal = writable("");
+export const storeMessages = writable();
