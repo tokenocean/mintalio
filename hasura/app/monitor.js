@@ -33,27 +33,8 @@ import {
   updateUser,
 } from "./queries.js";
 
-import redis from "./redis.js";
-
 const txcache = {};
 const hexcache = {};
-
-const getHex = async (txid) => {
-  let hex = await redis.get(txid);
-  if (!hex) {
-    await wait(async () => {
-      try {
-        hex = await electrs.url(`/tx/${txid}/hex`).get().text();
-        return true;
-      } catch (e) {
-        return false;
-      }
-    });
-  }
-
-  await redis.set(txid, hex);
-  return hex;
-};
 
 const updateAvatars = async () => {
   fs.readdir("/export", async (err, files) => {
