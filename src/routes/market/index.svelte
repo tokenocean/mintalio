@@ -1,11 +1,13 @@
 <script context="module">
   import { post } from "$lib/api";
   export async function load({ fetch }) {
-      const r = await fetch("/artworks.json", {
-        method: "POST",
-        headers: { "content-type": "application/json" },
-      }).then((r) => r.json());
+    // const r = await fetch("/artworks", {
+    //   method: "POST",
+    //   body: "{}",
+    //   headers: { "content-type": "application/json" },
+    // }).then((r) => r.json());
 
+    const r = await post("/artworks", {}, fetch);
     return {
       props: {
         total: r.total,
@@ -78,7 +80,7 @@
         most_viewed: { views: "desc" },
       }[$sc];
 
-      const r = await fetch("/artworks.json", {
+      const r = await fetch("/artworks", {
         method: "POST",
         body: JSON.stringify({ offset: $offset, order_by, where }),
         headers: { "content-type": "application/json" },
@@ -87,7 +89,7 @@
       filtered = [...r.artworks];
       total = r.total;
     } catch (e) {
-      console.log(e);
+      console.log("problem fetching artworks", e);
     }
   };
 </script>
