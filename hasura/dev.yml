@@ -4,7 +4,7 @@ services:
     depends_on:
       - hbp
     container_name: lapp
-    image: gcr.io/coinos-326717/github.com/tokenocean/raretoshi-server:prod
+    image: gcr.io/coinos-326717/github.com/tokenocean/raretoshi-server:staging
     restart: on-failure
     command: ["pnpm", "dev"]
     environment:
@@ -22,13 +22,22 @@ services:
       HBP_URL: "${HBP_URL}"
       IPFS_URL: "${IPFS_URL}"
       IPFS_WEB_URL: "${IPFS_WEB_URL}"
+      NODE_ENV: "development"
       SIGNING_SERVER_MNEMONIC: "${SIGNING_SERVER_MNEMONIC}"
       SMTP_HOST: "${SMTP_HOST}"
       SMTP_PORT: "${SMTP_PORT}"
       SMTP_USER: "${SMTP_USER}"
       SMTP_PASS: "${SMTP_PASS}"
       SMTP_SENDER: "${SMTP_SENDER}"
-      AUTH_EVENT_VALUE: '${AUTH_EVENT_VALUE}'
+      AUTH_EVENT_VALUE: "${AUTH_EVENT_VALUE}"
+      NFT_STORAGE_TOKEN: "${NFT_STORAGE_TOKEN}"
+      RPCHOST: "${RPCHOST}"
+      RPCPORT: "${RPCPORT}"
+      RPCUSER: "${RPCUSER}"
+      RPCPASS: "${RPCPASS}"
+      RPCWALLET: "${RPCWALLET}"
+    tmpfs:
+      - /tmp
     volumes:
       - ./app:/app
       - ./custom:/opt/src/hasura/app/custom
@@ -38,20 +47,6 @@ services:
     networks:
       default:
         ipv4_address: 172.18.0.12
-  postgres:
-    container_name: postgres
-    image: postgres:12
-    restart: always
-    environment:
-      POSTGRES_USER: "${POSTGRES_USER}"
-      POSTGRES_PASSWORD: "${POSTGRES_PASSWORD}"
-    volumes:
-      - ${DATA_DIR}:/var/lib/postgresql/data
-    ports:
-      - "5433:5432"
-    networks:
-      default:
-        ipv4_address: 172.18.0.13
   hasura:
     logging:
       options:
@@ -61,21 +56,19 @@ services:
     image: hasura/graphql-engine:v2.7.0
     ports:
       - "8080:8080"
-    depends_on:
-      - postgres
     restart: always
     volumes:
       - ./migrations:/hasura-migrations
       - ./metadata:/hasura-metadata
     environment:
       HASURA_GRAPHQL_ENABLED_LOG_TYPES: "startup, http-log, webhook-log, websocket-log, query-log"
-      HASURA_GRAPHQL_DATABASE_URL: "postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_USER}"
+      HASURA_GRAPHQL_DATABASE_URL: "${HASURA_GRAPHQL_DATABASE_URL}"
       HASURA_GRAPHQL_ADMIN_SECRET: "${HASURA_GRAPHQL_ADMIN_SECRET}"
       HASURA_GRAPHQL_JWT_SECRET: "${HASURA_GRAPHQL_JWT_SECRET}"
       HASURA_GRAPHQL_ENABLE_CONSOLE: "true"
       HASURA_GRAPHQL_UNAUTHORIZED_ROLE: "anonymous"
-      SERVER_URL: '${SERVER_URL}'
-      AUTH_EVENT_VALUE: '${AUTH_EVENT_VALUE}'
+      SERVER_URL: "${SERVER_URL}"
+      AUTH_EVENT_VALUE: "${AUTH_EVENT_VALUE}"
     networks:
       default:
         ipv4_address: 172.18.0.14
@@ -103,33 +96,13 @@ services:
       SMTP_USER: "${SMTP_USER}"
       SMTP_PASS: "${SMTP_PASS}"
       SMTP_SENDER: "${SMTP_SENDER}"
+      VERIFY_EMAILS: "true"
     volumes:
-      - ./custom:/app/custom
+      - ./app:/app/custom
     networks:
       default:
         ipv4_address: 172.18.0.15
-  ipfs:
-    container_name: ipfs
-    image: ipfs/go-ipfs
-    ports:
-      - 8081:8080
-      - 4001:4001
-      - 5001:5001
-    volumes:
-      - ${IPFS_DATA}:/data/ipfs
-      - ${STORAGE_DIR}:/export
-    networks:
-      default:
-        ipv4_address: 172.18.0.16
-  redis:
-    container_name: redis
-    image: redis
-    volumes:
-      - ./redis:/data
-    networks:
-      default:
-        ipv4_address: 172.18.0.17
-networks:
-  default:
-    external:
-      name: net
+networks: 
+  default: 
+    name: net
+    external: true
