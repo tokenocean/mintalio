@@ -80,7 +80,6 @@
   import { query } from "$lib/api";
   import { err, decrypt, goto } from "$lib/utils";
   import { keypair, network } from "$lib/wallet";
-  import { fromBase58 } from "bip32";
 
   export let popup;
   export let jwt;
@@ -136,17 +135,7 @@
     $user = $session.user;
     $token = jwt;
 
-    let ownPrivKey;
     let messages = [];
-
-    async function getPrivKey() {
-      if ($session.user) {
-        await requirePassword();
-        ownPrivKey = keypair().privkey.toString("hex");
-      }
-    }
-
-    getPrivKey();
 
     async function fetchMessages() {
       if ($session.user) {
@@ -156,24 +145,6 @@
             (m) => !$storeMessages.find((o) => m.id === o.id)
           );
 
-          messages.forEach((message) => {
-            let pubkeyFormatted = fromBase58(
-              message.from !== $session.user.id
-                ? message.fromUser.pubkey
-                : message.toUser.pubkey,
-              network
-            )
-              .publicKey.toString("hex")
-              .substring(2);
-
-            let decryptedMessage = decrypt(
-              ownPrivKey,
-              pubkeyFormatted,
-              message.message
-            );
-
-            message.message = decryptedMessage;
-          });
           if (newMessages.length) {
             $storeMessages = [...$storeMessages, ...newMessages];
           }
