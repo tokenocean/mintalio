@@ -3,7 +3,7 @@
   import Fa from "svelte-fa";
   import { faVolumeUp, faVolumeMute } from "@fortawesome/free-solid-svg-icons";
   import { loaded } from "$lib/store";
-  import { CID } from 'multiformats/cid'
+  import { CID } from "multiformats/cid";
 
   export let artwork;
   export let showDetails;
@@ -12,12 +12,12 @@
   export let popup = false;
 
   let img, vid, aud;
-  $: cid = CID.parse(artwork.filename).toV1().toString();
+  $: cid = artwork.filename && CID.parse(artwork.filename).toV1().toString();
   $: path =
     artwork &&
     (thumb
       ? `/api/public/${artwork.filename}.${artwork.filetype.split("/")[1]}`
-      : `https://${cid}.ipfs.nftstorage.link/`);
+      : cid && `https://${cid}.ipfs.nftstorage.link/`);
 
   $: cover = !showDetails;
   $: contain = showDetails;
@@ -130,8 +130,8 @@
 {:else}
   <div class="w-full">
     <img
-      class="w-full"
-      src={preview || path ? path : "/liquid_logo.svg"}
+      class={`${classes}`}
+      src={preview || (path ? path : "/liquid_logo.svg")}
       alt={artwork.title}
       bind:this={img}
     />
