@@ -49,8 +49,18 @@
       if ($fc.isPhysical) where.is_physical = { _eq: true };
       if ($fc.hasRoyalties) where.has_royalty = { _eq: true };
       if ($fc.isFavorited) where.favorited = { _eq: true };
-      if ($fc.fromFollowed)
-        where._or = { artist: { id: { _in: my_followers }}, owner: { id: { _in: my_followers }}};
+      if ($fc.hasOpenAuction) {
+        where.auction_start = { _lte: new Date(), _is_null: false };
+        where.auction_end = { _gt: new Date(), _is_null: false };
+      }
+
+      if ($session.user && $fc.fromFollowed) {
+        let follows = $session.user.user.follows.map((u) => u.user_id);
+        where._or = {
+          artist: { id: { _in: follows } },
+          owner: { id: { _in: follows } },
+        };
+      }
 
       let order_by = {
         newest: { created_at: "desc" },
