@@ -131,6 +131,7 @@
 
   let refreshInterval = 5000;
   let refreshArtwork = async () => {
+    if (!artwork) return;
     clearTimeout(refreshTimeout);
 
     try {
