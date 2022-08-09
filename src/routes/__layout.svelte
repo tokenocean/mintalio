@@ -85,17 +85,15 @@
   export let jwt;
 
   function initializeBTCUnits() {
-    if ($session.user) {
-      $bitcoinUnitLocal = $session.user.bitcoin_unit;
-    } else if (browser && window.localStorage.getItem("unit")) {
-      $bitcoinUnitLocal = browser && window.localStorage.getItem("unit");
+    if ($user) {
+      $bitcoinUnitLocal = $user.bitcoin_unit;
+    } else if (window.localStorage.getItem("unit")) {
+      $bitcoinUnitLocal = window.localStorage.getItem("unit");
     } else {
-      browser && window.localStorage.setItem("unit", "btc");
+      window.localStorage.setItem("unit", "btc");
       $bitcoinUnitLocal = "btc";
     }
   }
-
-  initializeBTCUnits();
 
   let unsubscribeFromSession;
   let refreshTimer,
@@ -107,9 +105,9 @@
 
   let refresh = async () => {
     try {
-      if (!$session.user) return;
-      let { jwt_token } = await get("/auth/refresh");
+      let { currentuser, jwt_token } = await get("/auth/refresh");
       $token = jwt_token;
+      $user = currentuser;
     } catch (e) {
       console.log("problem refreshing token", e);
       goto("/logout");
@@ -120,8 +118,8 @@
 
   let authCheck = async () => {
     try {
-      if ($session.user) {
-        checkAuthFromLocalStorage($session.user);
+      if ($user) {
+        checkAuthFromLocalStorage($user);
       }
     } catch (e) {
       console.log(e);
@@ -133,7 +131,7 @@
   let messages = [];
 
   let fetchMessages = async () => {
-    if ($session.user) {
+    if ($user) {
       try {
         ({ messages } = await query(getMessages));
         let newMessages = messages.filter(
@@ -145,8 +143,7 @@
         }
 
         $unreadMessages = messages.filter(
-          (message) =>
-            message.to === $session.user.id && message.viewed === false
+          (message) => message.to === $user.id && message.viewed === false
         );
       } catch (e) {
         err(e);
@@ -165,7 +162,6 @@
     });
 
     $p = popup;
-    $user = $session.user;
     $token = jwt;
 
     unsubscribeFromSession = session.subscribe((value) => {
@@ -190,13 +186,12 @@
   });
 
   onMount(() => {
-    fetchMessages();
-    authCheck();
-
-    refreshTimer = setTimeout(refresh, refreshInterval);
-
-    if (browser && !$password) {
-      $password = window.sessionStorage.getItem("password");
+    if (browser) {
+      refreshTimer = setTimeout(refresh, refreshInterval);
+      fetchMessages();
+      authCheck();
+      initializeBTCUnits();
+      if (!$password) $password = window.sessionStorage.getItem("password");
     }
   });
 </script>
