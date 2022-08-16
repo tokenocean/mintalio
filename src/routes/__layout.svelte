@@ -71,6 +71,7 @@
     bitcoinUnitLocal,
     storeMessages,
     unreadMessages,
+    username,
   } from "$lib/store";
   import { onDestroy, onMount } from "svelte";
   import branding from "$lib/branding";
@@ -92,28 +93,27 @@
     }
   }
 
-  let unsubscribeFromSession;
-  let refreshTimer,
-    refreshInterval = 60000;
+  let refreshTimeouts = [];
+  let refreshInterval = 6000;
   let authTimer,
     authInterval = 5000;
   let messagesTimer,
     messagesInterval = 5000;
 
   let refresh = async () => {
-    clearTimeout(refreshTimer);
-
-    try {
-      if (!$user) return;
-      let { currentuser, jwt_token } = await get("/auth/refresh");
-      $token = jwt_token;
-      $user = currentuser;
-    } catch (e) {
-      console.log("problem refreshing token", e);
-      goto("/logout");
+    if ($user) {
+      try {
+        let { currentuser, jwt_token } = await get("/auth/refresh");
+        $token = jwt_token;
+        $user = currentuser;
+      } catch (e) {
+        console.log("problem refreshing token", e);
+        goto("/logout");
+      }
     }
 
-    refreshTimer = setTimeout(refresh, refreshInterval);
+    refreshTimeouts.map((t) => clearTimeout(t));
+    refreshTimeouts.push(setTimeout(refresh, refreshInterval));
   };
 
   let authCheck = async () => {
@@ -154,8 +154,8 @@
   };
 
   if (browser) {
-      $user = $session.user;
-      $token = $session.jwt;
+    $user = $session.user && { ...$session.user };
+    $token = $session.jwt;
 
     history.pushState = new Proxy(history.pushState, {
       apply(target, thisArg, argumentsList) {
@@ -165,10 +165,6 @@
     });
 
     $p = popup;
-
-    unsubscribeFromSession = session.subscribe((value) => {
-      value && value.user && checkAuthFromLocalStorage(value.user);
-    });
   }
 
   let open = false;
@@ -181,16 +177,14 @@
   $: stopPolling($page);
 
   onDestroy(() => {
-    clearTimeout(refreshTimer);
+    refreshTimeouts.map((t) => clearTimeout(t));
     clearTimeout(authTimer);
     clearTimeout(messagesTimer);
-    unsubscribeFromSession && unsubscribeFromSession();
   });
-
-  $: if ($user) refreshTimer = setTimeout(refresh, refreshInterval);
 
   onMount(() => {
     if (browser) {
+      refresh();
       fetchMessages();
       authCheck();
       initializeBTCUnits();
