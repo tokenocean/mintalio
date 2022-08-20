@@ -94,7 +94,7 @@
   }
 
   let refreshTimeouts = [];
-  let refreshInterval = 6000;
+  let refreshInterval = 60000;
   let authTimer,
     authInterval = 5000;
   let messagesTimer,
