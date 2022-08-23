@@ -17,4 +17,15 @@
     for={id}
     class="toggle-label block overflow-hidden h-6 rounded-full bg-gray-300 cursor-pointer" />
 </div>
-<label for={id} class="cursor-pointer">{label}</label>
+<label for={id} class="cursor-pointer h-6 pt-1">{label}</label>
+
+<style>
+  .toggle-checkbox:checked {
+    @apply right-0;
+    border: 1px solid #6ed8e0;
+    right: 0;
+  }
+  .toggle-checkbox:checked + .toggle-label {
+    background: #6ed8e0;
+  }
+</style>
