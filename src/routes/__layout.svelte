@@ -162,6 +162,9 @@
     messagesTimer = setTimeout(fetchMessages, messagesInterval);
   };
 
+  $: updateUser($session);
+  let updateUser = (s) => ($user = s.user);
+
   if (browser) {
     $user = $session.user && { ...$session.user };
     $token = $session.jwt;
