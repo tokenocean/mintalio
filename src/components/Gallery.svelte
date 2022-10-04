@@ -1,14 +1,29 @@
 <script>
+  import { browser } from "$app/env";
   import { Card, Pagination } from "$comp";
+  import { onMount, tick } from "svelte";
+
   export let filtered;
   export let loadMore;
-  export let total;
 </script>
 
-<div class="md:columns-2 lg:columns-3 gap-4">
-  {#each filtered as artwork, i}
-    <Card {artwork} />
-  {/each}
+<Pagination {loadMore} {total} />
+
+<div id="content">
+  <div class="sm:grid sm:grid-cols-2 sm:gap-10 lg:grid-cols-3">
+    {#each filtered as artwork, i}
+      <div class="market-gallery w-full mb-20">
+        <Card noAudio={true} {artwork} height={350} />
+      </div>
+    {/each}
+  </div>
 </div>
 
-<Pagination bind:total bind:loadMore />
+<Pagination {loadMore} {total} />
+
+<style>
+  .full-width {
+    width: 100%;
+    left: calc(100vw - 100%);
+  }
+</style>
