@@ -5,9 +5,10 @@
 
   export let filtered;
   export let loadMore;
+  let currentPage = 0;
 </script>
 
-<Pagination {loadMore} {total} />
+<Pagination bind:current={currentPage} {loadMore} {total} />
 
 <div id="content">
   <div class="sm:grid sm:grid-cols-2 sm:gap-10 lg:grid-cols-3">
@@ -19,7 +20,7 @@
   </div>
 </div>
 
-<Pagination {loadMore} {total} />
+<Pagination bind:current={currentPage} {loadMore} {total} />
 
 <style>
   .full-width {
