@@ -34,8 +34,6 @@
   let loadMore = async () => {
     if (!browser) return;
     try {
-      let my_followers = $session.user.user.follows.map(x => x.user_id); // get list of follower ids
-
       let where = {};
       if ($sc === "ending_soon")
         where.auction_end = { _is_null: false, _gte: new Date() };

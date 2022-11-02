@@ -4,6 +4,7 @@
   import { onMount, tick } from "svelte";
 
   export let filtered;
+  export let total;
   export let loadMore;
   let currentPage = 0;
 </script>
