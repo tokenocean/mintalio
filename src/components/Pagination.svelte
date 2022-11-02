@@ -8,14 +8,14 @@
   export let loadMore, total, current;
   let pageSize = 21;
   
-  let buttonLength = 5;
+  let buttonLength = 3;
 
   $: pages = total > 0 ? [...Array(Math.ceil(total / pageSize)).keys()] : [];
 
   $: start =
     current >= pages.length - buttonLength
       ? pages.length - buttonLength
-      : Math.max(0, current - 2);
+      : Math.max(0, current - 1);
   $: slice = pages.slice(start, start + buttonLength);
 
   let load = (page) => {

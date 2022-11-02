@@ -12,14 +12,15 @@
 <Pagination bind:current={currentPage} {loadMore} {total} />
 
 <div id="content">
-  <div class="sm:grid sm:grid-cols-2 sm:gap-10 lg:grid-cols-3">
+  <div class="md:columns-2 lg:columns-3 gap-4">
     {#each filtered as artwork, i}
       <div class="market-gallery w-full mb-20">
-        <Card noAudio={true} {artwork} height={350} />
+        <Card noAudio={true} {artwork} />
       </div>
     {/each}
   </div>
 </div>
+
 
 <Pagination bind:current={currentPage} {loadMore} {total} />
 

@@ -157,7 +157,7 @@
     </figure>
   </div>
 {:else}
-  <div class="w-full" class:cover class:contain>
+  <div class="w-full">
     <img
       class={`${classes}`}
       src={preview || (path ? path : "/liquid_logo.svg")}
@@ -176,7 +176,6 @@
 
   .contain img,
   .contain video {
-    height: 350px;
     width: 100%;
     object-fit: cover;
   }
